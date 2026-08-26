@@ -1,60 +1,48 @@
-# Single Particle Reconstruction in Fluorescence Microsopy
+# Stage M2 : Reconstruction à partir de particules isolées en microscopie par fluorescence
 
-This repository contains the code developed during my PhD [Single Particle Reconstruction in Fluorescence Microsopy](https://publication-theses.unistra.fr/public/theses_doctorat/2024/ELOY_Thibaut_2024_ED269.pdf). This readme file briefly summarizes the subject of my PhD. 
+Ce repo reprend le [repo](https://github.com/thibaut1998e/Single_Particle_Reconstruction_Fluorescence_Microsopy) de Thibaut Eloy pour sa thèse [Reconstruction à partir de particule isolée en
+microscopie par fluorescence](https://publication-theses.unistra.fr/public/theses_doctorat/2024/ELOY_Thibaut_2024_ED269.pdf). Son README original est accessible [ici](/README_FLUOFIRE.md).
 
-## 📚 Context
+Mes contributions pendant ce stage sont regroupées dans le dossier [stage_gaetan](/stage_gaetan/).
 
-My thesis is set in the context of structural biology, a discipline that studies the three-dimensional structure of proteins and macromolecular assemblies. These assemblies are energetically stable 3D structures composed of multiple proteins
+## Setup
 
-In recent years, **fluorescence microscopy** has emerged as a promising technique in structural biology. This imaging modality is a technique that uses light to excite fluorescent molecules in a sample, causing them to emit light of a different wavelength that can be detected to visualize structures. The field has seen major advancements thanks to the development of **super-resolution techniques** such as STED (Stimulated Emission Depletion), SIM (Structured Illumination Microscopy), and **expansion microscopy**, which physically enlarges samples to improve resolution.
+- Cloner le repo [Single_Particle_Reconstruction_Fluorescence_Microscopy
+](https://github.com/allgaetan/Single_Particle_Reconstruction_Fluorescence_Microscopy)
 
-## ❗ Problem Statement
+- Créer l'environnement virtuel avec les dépendances en exécutant la commande suivante :
+```
+conda env create -f single_particle_reconstruction.yml
+```
 
-Despite these advances, two major limitations hinder the use of fluorescence microscopy in high-resolution structural reconstruction:
+- Modifier les chemins...
 
-1. **Anisotropic resolution**: The resolution is not uniform across all directions—typically lower along the optical axis (depth) of the microscope.
-2. **Sparse labeling**: Fluorescent markers (fluorophores) used to tag proteins often label only part of the structure, leading to incomplete spatial information.
+## Lancer une reconstruction
 
-These limitations are intrinsic to the acquisition process and are difficult to overcome with physical improvements alone. 
+Il faut se placer à la racine du [projet](/) et lancer le script [run.py](/stage_gaetan/run.py). Ce script lit ligne par ligne les configurations décrites dans [configs.csv](/stage_gaetan/configs.csv) et les lance parallèlement sur le cluster de calcul HPC via une gestion de jobs par Slurm.
 
-The figure bellow shows a 3D dual-channel view of a centriole, represented using three orthogonal cross-sectional views. The resolution in the XY plane is four times better than in the YZ and XZ planes.
+Les configurations s'écrivent au format CSV et les paramètres actuellement présents sont les suivants :
 
-![gg](resolution_anistropy.png)
-
-## 💡 Proposed Solution
-
-This thesis aims to bypass these limitations using computational methods, specifically by developing a **particle-based reconstruction method** from isolated views, inspired by techniques used in cryo-electron microscopy (cryo-EM). The goal is to computationally combine multiple 3D views with **anisotropic resolution** of identical biological particles—captured in unknown orientations—to reconstruct a 3D model of the particle.
-
-By fusing complementary information from each view, the method aims to generate a 3D volume with **isotropic resolution** and **uniform labeling density**, overcoming the physical constraints of the original acquisition process. This work focuses particularly on **convolutional imaging modalities** (which means that the acquired images are modelled as the convolution of the original object with the point-spread-function of the microscope)
-
-### 🔄 Reconstruction Pipeline
-
-The proposed reconstruction method consists of three main steps:
-
-1. *Detection*: Starting from images containing many randomly oriented particles, the method detects the 3D coordinates of image patches (views) corresponding to individual particles.
-
-2. *Ab-initio Reconstruction*: This step jointly estimates the 3D volume and the orientations (poses) of the views. It starts from a random initialization, requiring no prior knowledge about the structure or the poses. This forms a **blind inverse problem**, aiming to infer the hidden structure that produced the observed views.
-
-3. *Refinement*: Using the ab-initio model as initialization, a refinement procedure is applied to obtain a more accurate estimate of both the 3D volume and the poses.
-
-![tt](recons_process.png)
-
-## 🧩 Homogeneous vs. Heterogeneous Reconstruction
-
-Reconstruction from anisotropic views can be classified as:
-
-- **Homogeneous Reconstruction**: Assumes all views originate from a single, fixed 3D structure. This was the focus of **Chapter 3** of the thesis. The developped method was integrated in the software [Scipion](https://scipion.i2pc.es/), a widely used softawre for reconstruction in cryo-ME. 
-
-- **Heterogeneous Reconstruction**: Recognizes that the biological particle may exist in multiple conformational states (structural heterogeneity). In this case, the goal is to reconstruct multiple volumes and to assign each view to the corresponding conformation. This extension is covered in **Chapter 4** of the thesis.
-
-## 🧪 Setting the virtual environment 
-
-Install anaconda (follow their instructions)
-
-Create the virtual environment with all dependencies with command line : conda env create -f single_particle_reconstruction.yml
-
-You can then associate your virtual environment to your IDE  (in pycharm : file>settings>Project>Python Interpreter then click add interpreter. Tick Existing interpreter, brows /yourhome/anaconda3/envs/single_particle_reconstruction/bin/python3
-
-## 📄 General overview of the code
-
-For an overview of the code, you can check the two pdf files : documentation_reconstrution_homogène.pdf for the homogeneous reconstruction and documentation_reconstrution_hétérogène.pdf for the heterogeneous reconstruction. 
+- **gen** : True/False (default True), active la génération des données synthétiques
+- **rec** : True/False (default True), active la reconstruction à partir des données générées
+- **prof** : True/False (default False), active le profilage du code
+- **gt_name** : chaîne de caractères correspondant au nom de l'objet vérité terrain étudié (nom des fichiers dans [ground_truths/](/ground_truths/) sans l'extension .tif)
+- **fourier** : True/False (default False), active la reconstruction dans le domaine de Fourier (pas encore fonctionnel)
+- **config_id** : chaîne de caractères, id de la reconstruction (si aucune, une valeur est générée avec avec le format YYYYMMDD_HHMMSS_i)
+- **pth_views** : chaîne de caractères, chemin vers les vues générées (par défaut lorsque la génération est activée, le paramètre est automatiquement rempli)
+- **sig_z** : float (default 5), valeur du flou anisotropique des données générées
+- **nb_views** : int (default 250), nombre de vues générées
+- **snr** : float (default 1), ratio signal à bruit des données générées
+- **save_fold** : chaîne de caractères, chemin où est enregistré la reconstruction (par défaut, la reconstruction est enregistrée avec le dossier des vues générées dans le dossier nommé avec la **config_id**)
+- **nb_epochs** : int (default 3000), nombre d'epochs de la reconstruction
+- **x** : int (default 100), nombre d'epochs entre chaque checkpoint
+- **timeout** : chaîne de caractères au format "HH:MM:SS" (default "1:00:00"), durée limite du job lancé sur le cluster HPC
+- **nb_hps** : int (default 50), nombre d'epochs de HPS avant les **nb_epochs** - **nb_hps** epochs de SGD (lors du HPS, les checkpoints sont fait à chaque epoch indépendamment de **x**)
+- **nb_kept** : int (default 8), nombre de candidats gardés à chaque itération de HPS
+- **nb_children** : int (default 8), nombre de candidats générés pour chacun des **nb_kept** candidats à chaque itération de HPS (**nb_kept** x **nb_children** candidats à évalués à chaque itération)
+- **nb_dir** : int (default 72), nombre de plan de rotations générés lors de la première itération de HPS
+- **nb_in_plane** : int (default 12), nombre de rotation candidates générées dans chaque plan de rotation lors de la première itération de HPS (**nb_dir** x **nb_in_plane** candidats à évaluer initialement)
+- **scale_factors** : chaîne de caractères au format "[float,float,float,...]" (default None), facteurs d'échelle utilisés lorsque le sous-échantillonnage progressif est utilisé. La longueur de la liste doit être égale au nombre d'itérations de HPS (par défaut 5) + 1 pour l'itération initiale. Chaque float correspond à un facteur de downsampling utilisé pour l'itération correspondante. Si un facteur est utilisé deux fois d'affilé, il est plus optimale de l'écrire une fois dans la liste puis de remplacer les suivants par None (par exemple "[0.125,0.25,0.5,1.0,None,None]" au lieu de "[0.125,0.25,0.5,1.0,1.0,1.0]"). Exemples de **scale_factors** : 
+    - "[0.125,0.25,0.5,1.0,None,None]"
+    - "[0.2,0.4,0.6,0.8,1.0,None]"
+    - None (désactive le sous-échantillonnage)
