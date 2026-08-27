@@ -16,7 +16,7 @@ Mes contributions pendant ce stage sont regroupées dans le dossier [stage_gaeta
 ## Setup
 
 1. Cloner le repo [Single_Particle_Reconstruction_Fluorescence_Microscopy
-](https://github.com/allgaetan/Single_Particle_Reconstruction_Fluorescence_Microscopy) (dans un dossier **/home/user/Documents/**, sinon voir l'étape 4.2)
+](https://github.com/allgaetan/Single_Particle_Reconstruction_Fluorescence_Microscopy) (de préférence dans un dossier **/home/user/Documents/**, sinon voir l'étape 4.2)
 
 1. Remplacer la partie **/home/user** dans la partie **prefix** de l'environnement [single_particle_reconstruction.yml](/single_particle_reconstruction.yml) (dernière ligne)
 
@@ -31,6 +31,20 @@ conda env create -f single_particle_reconstruction.yml
 
 4. 1. Modifier le chemin **ROOT** dans [paths.py](/stage_gaetan/paths.py) avec votre chemin **/home/user**
     2. Si le repo n'a pas été cloné dans le dossier **/home/user/Documents/**, modifier le chemin **PATH_DOCUMENTS_FOLDER** dans [paths.py](/stage_gaetan/paths.py)  avec le dossier dans lequel a été cloné le repo
+
+
+L'architecture devrait ressembler à ça :
+```
+home/
+|--user/
+|   |--anaconda3/
+|   |   |--envs/
+|   |   |   |--single_particle_reconstruction/
+|   |--Documents/ # ou autre nom
+|   |   |--Single_Particle_Reconstruction_Fluorescence_Microscopy/
+|   |   |--jobs/ # dossier générée automatiquement avec les résultats des reconstructions
+```
+
 
 ## Lancer une reconstruction
 
