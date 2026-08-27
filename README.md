@@ -82,8 +82,8 @@ Les principaux fichiers sont :
 
 - [hps.py](/stage_gaetan/hps.py) : implémente l’algorithme de recherche hiérarchique de pose HPS
 
-    > [!NOTE] 
-    > Pour le moment, HPS n'estime que les rotations et considère des translations nulles
+> [!NOTE] 
+> Pour le moment, HPS n'estime que les rotations et considère des translations nulles
 
 - [hps_visualization.py](/stage_gaetan/hps_visualization.py) : outil de visualisation des itérations de la HPS
 
