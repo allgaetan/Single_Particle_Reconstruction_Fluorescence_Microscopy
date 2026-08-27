@@ -1,4 +1,4 @@
-# Stage M2 : Reconstruction à partir de particules isolées en microscopie par fluorescence
+# Stage : Reconstruction à partir de particules isolées en microscopie par fluorescence
 
 Ce repo reprend le [repo](https://github.com/thibaut1998e/Single_Particle_Reconstruction_Fluorescence_Microsopy) de Thibaut Eloy pour sa thèse [Reconstruction à partir de particule isolée en
 microscopie par fluorescence](https://publication-theses.unistra.fr/public/theses_doctorat/2024/ELOY_Thibaut_2024_ED269.pdf). Son README original est accessible [ici](/README_FLUOFIRE.md).
@@ -6,7 +6,7 @@ microscopie par fluorescence](https://publication-theses.unistra.fr/public/these
 Mes contributions pendant ce stage sont regroupées dans le dossier [stage_gaetan](/stage_gaetan/) et dans le fichier [end_to_end_architecture_volume.py](/reconstruction_with_dl/end_to_end_architecture_volume.py).
 
 ## Sommaire
-- [Stage M2 : Reconstruction à partir de particules isolées en microscopie par fluorescence](#stage-m2--reconstruction-à-partir-de-particules-isolées-en-microscopie-par-fluorescence)
+- [Stage : Reconstruction à partir de particules isolées en microscopie par fluorescence](#stage--reconstruction-à-partir-de-particules-isolées-en-microscopie-par-fluorescence)
   - [Sommaire](#sommaire)
   - [Setup](#setup)
   - [Lancer une reconstruction](#lancer-une-reconstruction)
@@ -16,15 +16,21 @@ Mes contributions pendant ce stage sont regroupées dans le dossier [stage_gaeta
 ## Setup
 
 1. Cloner le repo [Single_Particle_Reconstruction_Fluorescence_Microscopy
-](https://github.com/allgaetan/Single_Particle_Reconstruction_Fluorescence_Microscopy) (dans un dossier **user/Documents/**, sinon voir l'étape 3.2)
+](https://github.com/allgaetan/Single_Particle_Reconstruction_Fluorescence_Microscopy) (dans un dossier **/home/user/Documents/**, sinon voir l'étape 4.2)
 
-2. Créer l'environnement virtuel avec les dépendances en exécutant la commande suivante :
+1. Remplacer la partie **/home/user** dans la partie **prefix** de l'environnement [single_particle_reconstruction.yml](/single_particle_reconstruction.yml) (dernière ligne)
+
+```
+prefix: /home/user/anaconda3/envs/single_particle_reconstruction
+```
+
+3. Créer l'environnement virtuel avec les dépendances en exécutant la commande suivante :
 ```
 conda env create -f single_particle_reconstruction.yml
 ```
 
-3. 1. Modifier le chemin **ROOT** dans [paths.py](/stage_gaetan/paths.py) avec le home de votre user 
-    2. Si le repo n'a pas été cloné dans le dossier **user/Documents/**, modifier le chemin **PATH_DOCUMENTS_FOLDER** dans [paths.py](/stage_gaetan/paths.py)  avec le dossier dans lequel a été cloné le repo
+4. 1. Modifier le chemin **ROOT** dans [paths.py](/stage_gaetan/paths.py) avec votre chemin **/home/user**
+    2. Si le repo n'a pas été cloné dans le dossier **/home/user/Documents/**, modifier le chemin **PATH_DOCUMENTS_FOLDER** dans [paths.py](/stage_gaetan/paths.py)  avec le dossier dans lequel a été cloné le repo
 
 ## Lancer une reconstruction
 
@@ -49,8 +55,8 @@ Les configurations s'écrivent au format CSV et les paramètres actuellement pr�
 - **nb_hps** : int (default 50), nombre d'epochs de HPS avant les **nb_epochs** - **nb_hps** epochs de SGD (lors du HPS, les checkpoints sont fait à chaque epoch indépendamment de **x**)
 - **nb_kept** : int (default 8), nombre de candidats gardés à chaque itération de HPS
 - **nb_children** : int (default 8), nombre de candidats générés pour chacun des **nb_kept** candidats à chaque itération de HPS (**nb_kept** x **nb_children** candidats à évalués à chaque itération)
-- **nb_dir** : int (default 72), nombre de plan de rotations générés lors de la première itération de HPS
-- **nb_in_plane** : int (default 12), nombre de rotation candidates générées dans chaque plan de rotation lors de la première itération de HPS (**nb_dir** x **nb_in_plane** candidats à évaluer initialement)
+- **nb_dir** : int (default 72), nombre de directions de rotations générées lors de la première itération de HPS
+- **nb_in_plane** : int (default 12), nombre de rotations candidates générées dans chaque direction lors de la première itération de HPS (**nb_dir** x **nb_in_plane** candidats à évaluer initialement)
 - **scale_factors** : chaîne de caractères au format "[float,float,float,...]" (default None), facteurs d'échelle utilisés lorsque le sous-échantillonnage progressif est utilisé. La longueur de la liste doit être égale au nombre d'itérations de HPS (par défaut 5) + 1 pour l'itération initiale. Chaque float correspond à un facteur de downsampling utilisé pour l'itération correspondante. Si un facteur est utilisé deux fois d'affilé, il est plus optimale de l'écrire une fois dans la liste puis de remplacer les suivants par None (par exemple "[0.125,0.25,0.5,1.0,None,None]" au lieu de "[0.125,0.25,0.5,1.0,1.0,1.0]"). Exemples de **scale_factors** : 
     - "[0.125,0.25,0.5,1.0,None,None]"
     - "[0.2,0.4,0.6,0.8,1.0,None]"

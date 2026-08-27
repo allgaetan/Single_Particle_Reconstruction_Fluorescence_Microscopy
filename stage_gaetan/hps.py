@@ -8,7 +8,7 @@ from common_image_processing_methods.rotation_translation import (
     get_rot_vec_from_rot_mat,
     rotation)
 from stage_gaetan.hps_visualization import plot_search_round
-from manage_files.paths import PATH_PROJECT_FOLDER
+from stage_gaetan.paths import PROJECT_PATH
 import skimage.io as io
 from reconstruction_with_dl.pose_net import to_numpy
 import torch.nn.functional as F
@@ -212,7 +212,7 @@ def compute_errors(end_to_end_net,
         err = ((out_conv - view) ** 2).to(device).mean()
     else: 
         # Use ground truth and rotate to compare with generated pose (only for testing)
-        gt_path = f"{PATH_PROJECT_FOLDER}/ground_truths/recepteurs_AMPA.tif"
+        gt_path = f"{PROJECT_PATH}/ground_truths/recepteurs_AMPA.tif"
         ground_truth = io.imread(gt_path)
         rotated, _ = rotation(to_numpy(view).squeeze(), to_numpy(rot_mat).squeeze().T)
         err = torch.from_numpy(((rotated - ground_truth) ** 2)).to(device).mean()
