@@ -1,7 +1,7 @@
 import os
 import csv
 import sys
-from paths import ROOT_HPC, PYTHON_ENV, PATH_DOCUMENTS_FOLDER, PROJECT_PATH, STAGE_PATH, CONFIG_PATH
+from paths import ROOT, PYTHON_ENV, PATH_DOCUMENTS_FOLDER, PROJECT_PATH, STAGE_PATH, CONFIG_PATH
 from utils import generate_config_id
 sys.path.insert(0, PROJECT_PATH) 
 #print(sys.path)
@@ -76,7 +76,7 @@ def write_slurm_file(save_fold, config):
     text += "#SBATCH --constraint='gpup100|gpurtx5000|gpua100|gpul40s' \n"
     text += f"#SBATCH -o {save_fold}/slurm.out \n"
     text += "\n"
-    text += f"source {ROOT_HPC}/anaconda3/etc/profile.d/conda.sh \n"
+    text += f"source {ROOT}/anaconda3/etc/profile.d/conda.sh \n"
     text += "conda activate single_particle_reconstruction \n"
     #text += f"CUDA_LAUNCH_BLOCKING=1 {PYTHON_ENV} {STAGE_PATH}/main.py " + build_cli_args(config)
     text += f"{PYTHON_ENV} {STAGE_PATH}/main.py " + build_cli_args(config)
