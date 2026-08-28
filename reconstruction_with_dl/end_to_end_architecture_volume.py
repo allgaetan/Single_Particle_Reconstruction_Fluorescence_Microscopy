@@ -191,7 +191,7 @@ class End_to_end_architecture_volume(nn.Module):
             #self.psf = resize(self.psf, (scaled_size, scaled_size, scaled_size))
             self.params_gen["size"] = scaled_size
             self.psf = get_psf(self.params_gen)
-            self.psf_layer = PSF_layer(self.psf, scaled_size, self.nb_dim, self.device)
+            self.psf_layer = PSF_layer(self.psf, scaled_size, self.nb_dim, self.device, self.fourier)
 
         rotated_grid = self.translate_and_rotate_grid(rot_mat, trans, rot_mat_axis)
         if not self.impose_cylinder:
@@ -205,7 +205,11 @@ class End_to_end_architecture_volume(nn.Module):
             # out shape : (bs, Nc, s, s, s)
         else:
             out_vol_reshaped, additional_regul = self.cylinder_decoder.forward(est_heterogeneite, rotated_grid)
-        return out_vol_reshaped, additional_regul
+        if self.fourier:
+            out_vol_ifftn = torch.real(torch.fft.ifftn(out_vol_reshaped))
+
+        else: out_vol_ifftn = None
+        return out_vol_reshaped, additional_regul, out_vol_ifftn
 
     def forward(self, view, t_vec, true_rot_mat, rot_mat_axis=None, test=False, pass_het=True, known_rot=False, known_trans=False):
         """takes a mini batch of input views and pass it through the encoder-decoder system, retturns the estimated view,
@@ -215,7 +219,7 @@ class End_to_end_architecture_volume(nn.Module):
         rot_mat = true_rot_mat if known_rot else est_rot_mat
         trans = t_vec if known_trans else est_trans
         # reference_grid : N, 3
-        out_siren_reshaped, additional_regul = self.forward_decoder(rot_mat, trans, est_heterogeneite, test, rot_mat_axis) #forward pass through the decoder (except the psf)
+        out_siren_reshaped, additional_regul, out_siren_spatial = self.forward_decoder(rot_mat, trans, est_heterogeneite, test, rot_mat_axis) #forward pass through the decoder (except the psf)
         if not test:
             out_siren_convolved = self.psf_layer.forward(out_siren_reshaped) #forward pass throught the psf layer
         else:
@@ -237,7 +241,7 @@ class End_to_end_architecture_volume(nn.Module):
 
     def forward_rotation(self, random_rot_mat, random_trans_vec, heterogeneity_val, params_learn_setup):
         """inspired from paper ACE-HetEM : try to stabilize the learning process by fitting random inpt poses"""
-        siren_eval, _ = self.forward_decoder(random_rot_mat, random_trans_vec, heterogeneity_val)
+        siren_eval, _, _ = self.forward_decoder(random_rot_mat, random_trans_vec, heterogeneity_val)
         out_siren_convolved = self.psf_layer.forward(siren_eval)
         est_rot_mat, est_trans, _ = self.pose_net.forward(out_siren_convolved, known_rot=params_learn_setup["known_rot"], known_trans=params_learn_setup["known_trans"])
         est_rot_mat = random_rot_mat if params_learn_setup["known_rot"] else est_rot_mat
@@ -324,7 +328,9 @@ class End_to_end_architecture_volume(nn.Module):
 
             est_heterogeneity = self.conf_table.forward_sgd(index)
             est_rot_mat, est_trans = self.pose_table.forward_sgd(index)
-            est_vol, _ = self.forward_decoder(est_rot_mat, est_trans, est_heterogeneity, True)
+
+            est_vol, _, est_vol_ifftn = self.forward_decoder(est_rot_mat, est_trans, est_heterogeneity, True)
+            if self.fourier: est_vol = est_vol_ifftn
 
             if v < 0:
                 # Realign views with predicted poses to check if the estimated poses are relatively correct
@@ -498,7 +504,7 @@ class End_to_end_architecture_volume(nn.Module):
         all_vols = []
         for het_val in np.linspace(mi_rg, ma_rg, 500):
             het_val_tensor = torch.FloatTensor([[het_val]]).cuda(self.device)
-            recons_het_val, _ = self.forward_decoder(self.est_rot_mat_0, self.est_trans_0, het_val_tensor, True)
+            recons_het_val, _, _ = self.forward_decoder(self.est_rot_mat_0, self.est_trans_0, het_val_tensor, True)
             recons_het_val_numpy = to_numpy(recons_het_val)
             all_vols.append(recons_het_val_numpy)
             # save(f'{fold_final}/recons_het_val_{het_val}.tif', recons_het_val_numpy)
@@ -843,7 +849,7 @@ def train_with_hps(data_set, params_data_gen, params_learning_setup, gt_4d, view
             true_rot_mats.append(to_numpy(rot_mat))
             trans_abs_val += np.mean(np.abs(to_numpy(trans)))
 
-            out_vol, _ = end_to_end_net.forward_decoder(est_rot_mat, 
+            out_vol, _, _ = end_to_end_net.forward_decoder(est_rot_mat, 
                                                         trans, 
                                                         est_het, 
                                                         True)
