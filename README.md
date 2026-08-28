@@ -15,10 +15,9 @@ Mes contributions pendant ce stage sont regroupées dans le dossier [stage_gaeta
 
 ## Setup
 
-1. Cloner le repo [Single_Particle_Reconstruction_Fluorescence_Microscopy
-](https://github.com/allgaetan/Single_Particle_Reconstruction_Fluorescence_Microscopy) (de préférence dans un dossier **/home/user/Documents/**, sinon voir l'étape 4.2)
+1. Cloner le repo [Single_Particle_Reconstruction_Fluorescence_Microscopy](https://github.com/allgaetan/Single_Particle_Reconstruction_Fluorescence_Microscopy) (de préférence dans un dossier **/home/user/Documents/**, sinon voir l'étape 4.2)
 
-1. Remplacer la partie **/home/user** dans la partie **prefix** de l'environnement [single_particle_reconstruction.yml](/single_particle_reconstruction.yml) (dernière ligne)
+2. Remplacer la partie **/home/user** dans la partie **prefix** de l'environnement [single_particle_reconstruction.yml](/single_particle_reconstruction.yml) (dernière ligne)
 
 ```
 prefix: /home/user/anaconda3/envs/single_particle_reconstruction
@@ -42,7 +41,7 @@ home/
 |   |   |   |--single_particle_reconstruction/
 |   |--Documents/ # ou autre nom
 |   |   |--Single_Particle_Reconstruction_Fluorescence_Microscopy/
-|   |   |--jobs/ # dossier générée automatiquement avec les résultats des reconstructions
+|   |   |--jobs/ # dossier généré automatiquement avec les résultats des reconstructions
 ```
 
 
